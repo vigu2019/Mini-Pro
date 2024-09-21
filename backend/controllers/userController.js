@@ -75,7 +75,8 @@ const signInUser = async (req, res) => {
             user: { 
                 id: user.rows[0].id, 
                 email: user.rows[0].email, 
-                name: user.rows[0].name 
+                name: user.rows[0].name ,
+                user_type: user.rows[0].user_type
             } 
         });
     } catch (err) {
