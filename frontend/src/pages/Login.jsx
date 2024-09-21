@@ -16,6 +16,7 @@ export default function Login() {
     try {
       const { data } = await axios.post(loginRoute, { email, password });
       localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
       setAuthUser(data.user);
       toast.success('Logged in successfully!');
       data.user.user_type === 'admin' ? navigate('/admin-dashboard') : navigate('/customer-dashboard');

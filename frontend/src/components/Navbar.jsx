@@ -10,6 +10,7 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       localStorage.removeItem('user');
+      localStorage.removeItem('token');
       setAuthUser(null);
       navigate('/login');
       toast.success("Logged out successfully");
