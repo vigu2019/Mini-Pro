@@ -1,14 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { packagesRoute } from '../utils/ApiRoutes';
+import { packagesRoute, eachPackageRoute } from '../utils/ApiRoutes';
 import Modal from '../components/Modal';
-import { eachPackageRoute } from '../utils/ApiRoutes';
+import { toast } from 'react-toastify';
 
 const CustomerDashboard = () => {
   const [packages, setPackages] = useState([]);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isPreview, setIsPreview] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState([{ name: '', age: '', passport: '' }]);
 
   const getPackageDetails = async () => {
     try {
@@ -40,10 +42,13 @@ const CustomerDashboard = () => {
     }
   };
   
-
   const openModal = async (pkg) => {
     await fetchModalData(pkg);
     setIsModalOpen(true);
+  };
+
+  const openBookingModal = () => {
+    setIsBookingModalOpen(true);
   };
 
   const closeModal = () => {
@@ -51,10 +56,50 @@ const CustomerDashboard = () => {
     setIsModalOpen(false);
   };
 
+  const closeBookingModal = () => {
+    setBookingDetails([{ name: '', age: '', passport: '' }]);
+    setIsBookingModalOpen(false);
+    setIsPreview(false);
+  };
+
+  const handleBookingChange = (index, field, value) => {
+    const updatedDetails = [...bookingDetails];
+    updatedDetails[index][field] = value;
+    setBookingDetails(updatedDetails);
+  };
+
+  const addMember = () => {
+    setBookingDetails([...bookingDetails, { name: '', age: '', passport: '' }]);
+  };
+
+  const removeMember = (index) => {
+    if (bookingDetails.length === 1) {
+      return;
+    }
+    const updatedDetails = bookingDetails.filter((_, i) => i !== index);
+    setBookingDetails(updatedDetails);
+  };
+
+  const handlePreview = () => {
+    if (bookingDetails.some((member) => Object.values(member).some((value) => !value))) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    setIsPreview(true);
+  };
+
+  const handleEdit = () => {
+    setIsPreview(false);
+  };
+
+  const handleBookingSubmit = () => {
+    console.log("Booking Details:", bookingDetails);
+    closeBookingModal();
+  };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-4">Your Dashboard</h1>
-      {/* <p className="text-lg mb-6">Welcome to your dashboard!</p> */}
 
       <div className="mt-6">
         <h2 className="text-xl font-semibold mb-4">Packages</h2>
@@ -76,6 +121,7 @@ const CustomerDashboard = () => {
                   </button>
                   <button
                     className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    onClick={openBookingModal}
                   >
                     Book Now
                   </button>
@@ -88,6 +134,7 @@ const CustomerDashboard = () => {
         )}
       </div>
 
+      {/* Package Details Modal */}
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         {selectedPackage && (
           <div>
@@ -100,6 +147,81 @@ const CustomerDashboard = () => {
             <p><strong>Contact:</strong> {selectedPackage.contact_info}</p>
             <p><strong>Email:</strong> {selectedPackage.email}</p>
           </div>
+        )}
+      </Modal>
+
+      {/* Booking Form Modal */}
+      <Modal isOpen={isBookingModalOpen} onClose={closeBookingModal}>
+        <h2 className="text-xl font-bold mb-4">{isPreview ? "Preview Booking Details" : "Booking Details"}</h2>
+        
+        {!isPreview ? (
+          <>
+            {bookingDetails.map((member, index) => (
+              <div key={index} className="mb-4">
+                <h3 className="text-lg font-semibold">Member {index + 1}</h3>
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={member.name}
+                  onChange={(e) => handleBookingChange(index, 'name', e.target.value)}
+                  className="border p-2 w-full mt-2"
+                />
+                <input
+                  type="number"
+                  placeholder="Age"
+                  value={member.age}
+                  onChange={(e) => handleBookingChange(index, 'age', e.target.value)}
+                  className="border p-2 w-full mt-2"
+                />
+                <input
+                  type="text"
+                  placeholder="Passport Number"
+                  value={member.passport}
+                  onChange={(e) => handleBookingChange(index, 'passport', e.target.value)}
+                  className="border p-2 w-full mt-2"
+                />
+                <button
+                  onClick={() => removeMember(index)}
+                  className="text-red-500 hover:underline mt-2"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button onClick={addMember} className="text-blue-500 hover:underline mt-2 mr-2">
+              Add Another Member
+            </button>
+            <button onClick={handlePreview} className="bg-yellow-500 text-white px-4 py-2 rounded mt-4">
+              Preview
+            </button>
+          </>
+        ) : (
+          <>
+            <table className="w-full border mt-4">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border px-4 py-2">Name</th>
+                  <th className="border px-4 py-2">Age</th>
+                  <th className="border px-4 py-2">Passport Number</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookingDetails.map((member, index) => (
+                  <tr key={index}>
+                    <td className="border px-4 py-2">{member.name}</td>
+                    <td className="border px-4 py-2">{member.age}</td>
+                    <td className="border px-4 py-2">{member.passport}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button onClick={handleEdit} className="text-blue-500 hover:underline mt-4 mr-2">
+              Previous
+            </button>
+            <button onClick={handleBookingSubmit} className="bg-green-500 text-white px-4 py-2 rounded mt-4">
+              Submit Booking
+            </button>
+          </>
         )}
       </Modal>
     </div>
