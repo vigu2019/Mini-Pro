@@ -65,11 +65,8 @@ const signInUser = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
-
-        // Generate JWT token
-        const token = jwt.sign({ id: user.rows[0].id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-
-        // Send response with the token and user info
+        const token = jwt.sign({ id: user.rows[0].user_id , user_type: user.rows[0].user_type }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.cookie("token",token,{httpOnly:true});
         res.json({ 
             token, 
             user: { 
@@ -85,8 +82,14 @@ const signInUser = async (req, res) => {
     }
 };
 
+const logoutUser = async (req, res) => {
+    res.clearCookie('token');
+    res.json({ msg: 'Logged out' });
+};
+
 
 module.exports = {
     registerUser,
-    signInUser
+    signInUser,
+    logoutUser
 };

@@ -3,17 +3,25 @@ import { useAuthContext } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { logoutRoute } from '../utils/ApiRoutes';
 
 export default function Navbar() {
   const { authUser, setAuthUser } = useAuthContext();
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
+      const response = await axios.post(logoutRoute, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
       localStorage.removeItem('user');
       localStorage.removeItem('token');
       setAuthUser(null);
       navigate('/login');
-      toast.success("Logged out successfully");
+      toast.success(response.data.msg);
     } catch (err) {
       toast.error("Failed to logout");
       console.error(err);
