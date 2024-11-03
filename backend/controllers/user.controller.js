@@ -33,7 +33,6 @@ const registerUser = async (req, res) => {
             [name, email, passwordHash, 'customer']
         );
 
-        // Respond with the new user's data (excluding the password)
         res.status(201).json({ 
             msg: 'Registered successfully', 
         });
