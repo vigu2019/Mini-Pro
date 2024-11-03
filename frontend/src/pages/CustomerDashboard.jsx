@@ -19,6 +19,12 @@ const CustomerDashboard = () => {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
+      if(response.status === 403) {
+        toast.error("Access denied. Please login to continue.");
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        return;
+      }
       setPackages(response.data);
     } catch (error) {
       console.error(error);
