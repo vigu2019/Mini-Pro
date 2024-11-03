@@ -11,12 +11,11 @@ export default function Navbar() {
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
-      const response = await axios.post(logoutRoute, {
+      const response = await axios.get(logoutRoute, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
-
       localStorage.removeItem('user');
       localStorage.removeItem('token');
       setAuthUser(null);
