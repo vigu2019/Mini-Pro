@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useAuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import { registerRoute } from '../utils/ApiRoutes';
 import { toast } from 'react-toastify';
@@ -9,16 +8,13 @@ export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { setAuthUser } = useAuthContext();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(registerRoute, { name, email, password });
-      localStorage.setItem('user', JSON.stringify(data.user));
-      setAuthUser(data.user);
-      toast.success('Registered successfully!');
+      const response = await axios.post(registerRoute, { name, email, password });
+      toast.success(response.data.msg);
       navigate('/customer-dashboard');
     } catch (err) {
       toast.error(err.response.data.msg || 'Registration failed');

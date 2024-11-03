@@ -35,8 +35,7 @@ const registerUser = async (req, res) => {
 
         // Respond with the new user's data (excluding the password)
         res.status(201).json({ 
-            msg: 'User registered', 
-            user: { id: newUser.rows[0].id, name: newUser.rows[0].name, email: newUser.rows[0].email,user_type: newUser.rows[0].user_type } 
+            msg: 'Registered successfully', 
         });
 
     } catch (err) {
