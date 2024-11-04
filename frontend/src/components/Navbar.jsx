@@ -37,7 +37,7 @@ export default function Navbar() {
         {authUser ? (
           <>
             <Link to="/customer-dashboard" className="btn btn-ghost">Dashboard</Link>
-            <Link to="/bookings" className="btn btn-ghost">Bookings</Link>
+            {authUser.user_type === 'customer' && <Link to="/bookings" className="btn btn-ghost">Bookings</Link>}
             <div className="text-xl font-semibold">Welcome! {authUser.name}</div>
             <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
