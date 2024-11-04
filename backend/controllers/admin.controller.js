@@ -89,7 +89,7 @@ const getAllPackages = async (req, res) => {
 }
 const getAllUsers = async (req, res) => {
     try {
-        const users = await db.query('SELECT * FROM users');
+        const users = await db.query('SELECT * FROM users where user_type = $1', ['customer']);
         res.status(200).json(users.rows);
     } catch (error) {
         console.error(error);

@@ -29,8 +29,10 @@ const AdminDashboard = () => {
       else if (section === 'bookings') setBookings(response.data);
       else setPackages(response.data);
     } catch (error) {
+      if(error.response.status === 403) {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
+      }
       toast.error(`Error fetching ${section}.`);
     }
   };
@@ -48,8 +50,10 @@ const AdminDashboard = () => {
       setUsers(users.filter(user => user.user_id !== userId));
       toast.success("User deleted successfully.");
     } catch (error) {
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      if(error.response.status === 403) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        }
       toast.error("Error deleting user.Login and try again");
     }
   };
@@ -61,8 +65,10 @@ const AdminDashboard = () => {
       setPackages(packages.filter(pkg => pkg.package_id !== packageId));
       toast.success(response.data.msg);
     } catch (error) {
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      if(error.response.status === 403) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        }
       toast.error("Error deleting package.");
     }
   };
@@ -74,8 +80,10 @@ const AdminDashboard = () => {
       setBookings(bookings.map(booking => booking.booking_id === bookingId ? { ...booking, booking_status: status } : booking));
       toast.success(response.data.msg);
     } catch (error) {
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      if(error.response.status === 403) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        }
       toast.error("Error updating booking status.");
     }
   };
@@ -96,8 +104,10 @@ const AdminDashboard = () => {
       });
       fetchData('packages');
     } catch (error) {
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      if(error.response.status === 403) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        }
       toast.error("Error adding package.");
     }
   };

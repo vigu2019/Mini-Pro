@@ -23,8 +23,10 @@ const CustomerDashboard = () => {
     } catch (error) {
       console.error(error);
       toast.error("Access denied. Please login to continue.");
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      if (error.response.status === 403) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
     }
   };
 
@@ -41,6 +43,10 @@ const CustomerDashboard = () => {
       });
       setSelectedPackage(response.data[0]);
     } catch (err) {
+      if (err.response.status === 403) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
       console.error(err);
     }
   };
@@ -129,6 +135,10 @@ const CustomerDashboard = () => {
       }
     } catch (error) {
       console.error(error);
+      if (error.response.status === 403) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
       toast.error("An error occurred while processing the booking.");
     }
   };
