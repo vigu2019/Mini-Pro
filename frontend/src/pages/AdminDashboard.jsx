@@ -74,6 +74,8 @@ const AdminDashboard = () => {
       setBookings(bookings.map(booking => booking.booking_id === bookingId ? { ...booking, booking_status: status } : booking));
       toast.success(response.data.msg);
     } catch (error) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
       toast.error("Error updating booking status.");
     }
   };
@@ -94,6 +96,8 @@ const AdminDashboard = () => {
       });
       fetchData('packages');
     } catch (error) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
       toast.error("Error adding package.");
     }
   };
