@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { packagesRoute, eachPackageRoute } from '../utils/ApiRoutes';
+import { packagesRoute, eachPackageRoute, bookingRoute } from '../utils/ApiRoutes';
 import Modal from '../components/Modal';
 import { toast } from 'react-toastify';
 
@@ -19,15 +19,12 @@ const CustomerDashboard = () => {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
-      if(response.status === 403) {
-        toast.error("Access denied. Please login to continue.");
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-        return;
-      }
       setPackages(response.data);
     } catch (error) {
       console.error(error);
+      toast.error("Access denied. Please login to continue.");
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
     }
   };
 
@@ -53,7 +50,8 @@ const CustomerDashboard = () => {
     setIsModalOpen(true);
   };
 
-  const openBookingModal = () => {
+  const openBookingModal = (pkg) => {
+    setSelectedPackage(pkg); // Set the selected package for booking
     setIsBookingModalOpen(true);
   };
 
@@ -86,6 +84,10 @@ const CustomerDashboard = () => {
     setBookingDetails(updatedDetails);
   };
 
+  const calculateTotalAmount = (price, noOfMembers) => {
+    return price * noOfMembers;
+  };
+
   const handlePreview = () => {
     if (bookingDetails.some((member) => Object.values(member).some((value) => !value))) {
       toast.error("Please fill in all fields");
@@ -98,9 +100,37 @@ const CustomerDashboard = () => {
     setIsPreview(false);
   };
 
-  const handleBookingSubmit = () => {
-    console.log("Booking Details:", bookingDetails);
-    closeBookingModal();
+  const handleBookingSubmit = async () => {
+    if (bookingDetails.some((member) => Object.values(member).some((value) => !value))) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+  
+    try {
+      const response = await axios.post(
+        bookingRoute,
+        {
+          package_id: selectedPackage.package_id,
+          bookingDetails,
+          totalAmount: calculateTotalAmount(selectedPackage.price, bookingDetails.length)
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        toast.success(response.data.msg);
+        closeBookingModal();
+      } else {
+        toast.error("Booking failed. Please try again.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred while processing the booking.");
+    }
   };
 
   return (
@@ -127,7 +157,7 @@ const CustomerDashboard = () => {
                   </button>
                   <button
                     className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                    onClick={openBookingModal}
+                    onClick={() => openBookingModal(pkg)} 
                   >
                     Book Now
                   </button>
@@ -156,10 +186,9 @@ const CustomerDashboard = () => {
         )}
       </Modal>
 
-      {/* Booking Form Modal */}
       <Modal isOpen={isBookingModalOpen} onClose={closeBookingModal}>
         <h2 className="text-xl font-bold mb-4">{isPreview ? "Preview Booking Details" : "Booking Details"}</h2>
-        
+
         {!isPreview ? (
           <>
             {bookingDetails.map((member, index) => (
@@ -171,6 +200,7 @@ const CustomerDashboard = () => {
                   value={member.name}
                   onChange={(e) => handleBookingChange(index, 'name', e.target.value)}
                   className="border p-2 w-full mt-2"
+                  required
                 />
                 <input
                   type="number"
@@ -178,6 +208,7 @@ const CustomerDashboard = () => {
                   value={member.age}
                   onChange={(e) => handleBookingChange(index, 'age', e.target.value)}
                   className="border p-2 w-full mt-2"
+                  required
                 />
                 <input
                   type="text"
@@ -221,11 +252,12 @@ const CustomerDashboard = () => {
                 ))}
               </tbody>
             </table>
+            <p className="text-lg mt-4"><strong>Total Amount:</strong> ${calculateTotalAmount(selectedPackage.price, bookingDetails.length)}</p>
             <button onClick={handleEdit} className="text-blue-500 hover:underline mt-4 mr-2">
-              Previous
+              Edit Details
             </button>
             <button onClick={handleBookingSubmit} className="bg-green-500 text-white px-4 py-2 rounded mt-4">
-              Submit Booking
+              Confirm Booking
             </button>
           </>
         )}
