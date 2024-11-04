@@ -133,6 +133,7 @@ const AdminDashboard = () => {
       {selectedSection === 'bookings' && (
         <div>
           <h2 className="text-2xl font-semibold mb-4">All Bookings</h2>
+          {bookings.length === 0 && <p>No bookings found.</p>}
           {bookings.map(booking => (
             <div key={booking.booking_id} className="bg-white p-4 mb-2 rounded-lg shadow-md flex justify-between items-center">
               <div>
